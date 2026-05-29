@@ -3,9 +3,10 @@ package cmd
 import (
 	"encoding/json"
 	"fmt"
+	"io"
+
 	"github.com/aswinkarthik/csvdiff/pkg/digest"
 	"github.com/fatih/color"
-	"io"
 )
 
 const (
@@ -238,8 +239,8 @@ func (f *Formatter) wordLevelDiffs(diff digest.Differences, deletionFormat, addi
 	_, _ = fmt.Fprintln(f.stderr, blue("# Modifications (%d)", len(diff.Modifications)))
 	for _, modification := range diff.Modifications {
 		result := make([]string, 0, len(modification.Current))
-		for i := 0; i < len(includes) && i < len(modification.Current); i++ {
-			if modification.Original[i] != modification.Current[i] {
+		for i := 0; i < len(includes) || i < len(modification.Current); i++ {
+			if i < len(modification.Original) && modification.Original[i] != modification.Current[i] {
 				removed := red(deletionFormat, modification.Original[i])
 				added := green(additionFormat, modification.Current[i])
 				result = append(result, fmt.Sprintf("%s%s", removed, added))
